@@ -1,0 +1,24 @@
+﻿// **********************************************************
+// *
+// *   LaserDAC (Managed wrapper for unmanaged LASER_DAC_Library)
+// *   2012-10-31
+// *   Copyright 2012 by Matthias Heise 
+// *      for demonstrating the Universal Laser DAC Library in C# .NET 4.0
+// *      Free to use with free and open source software
+// *
+// **********************************************************
+
+// **********************************************************
+// *
+// *   Laser_DAC_Library
+// *   2011-09-17
+// *   Copyright 2011 Andrew Kibler 
+// *      Free to use with free and open source software
+// *      Commercial License available for closed and commercial software
+// *       For deails, please contact:
+// *       inquiries at nautilus hyphen integration dot com
+// *
+// **********************************************************
+
+
+This software is distrubited with no warranty expressed or implied.

@@ -4,3 +4,6 @@
 
 # Dynamic plugins .dll
 bin/
+
+LaserDAC/obj/
+packages/
