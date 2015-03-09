@@ -66,6 +66,8 @@
   <ItemGroup>
     <Compile Include="DAC.cs" />
     <Compile Include="DisposeMember.cs" />
+    <Compile Include="EtherDreamDACNode.cs" />
+    <Compile Include="EtherDreamNative.cs" />
     <Compile Include="LaserDACNode.cs" />
     <Compile Include="LaserPoint.cs" />
     <Compile Include="NativeMethods.cs" />
@@ -104,7 +106,6 @@
     <Content Include="Laser_DAC_Library.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="License.txt" />
     <Content Include="STCLSystemLib.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

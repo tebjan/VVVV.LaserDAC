@@ -161,7 +161,7 @@ namespace Laser
         }
     }
 
-    class NativeMethods
+    static class NativeMethods
     {
         [System.Runtime.InteropServices.DllImportAttribute("Laser_DAC_Library.dll", EntryPoint = "LDL_DAC_Write_Frame", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern int LDL_DAC_Write_Frame(uint nIndex, laser_point[] pPoints, uint nPoints, int nPPS, int nMode, float fScale = 1.0f, uint nInvert = 0, float fBright = 1.0f);

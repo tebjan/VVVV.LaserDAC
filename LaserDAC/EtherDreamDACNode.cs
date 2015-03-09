@@ -10,20 +10,20 @@ using VVVV.Utils.VMath;
 using VVVV.Core.Logging;
 #endregion usings
 
-using Laser;
+using EtherDream;
 using System.Collections.Generic;
 using System.Drawing;
 
 namespace VVVV.Nodes
 {
     #region PluginInfo
-    [PluginInfo(Name = "LaserDAC",
+    [PluginInfo(Name = "EtherDream",
                 Category = "Devices",
-                Help = "Universal laser controller",
-                Tags = "",
+                Help = "EtherDream laser controller",
+                Tags = "laser",
                 AutoEvaluate = true)]
     #endregion PluginInfo
-    public class LaserDACNode : IPluginEvaluate, IDisposable
+    public class EtherDreamDACNode : IPluginEvaluate, IDisposable
     {
         #region fields & pins
         [Input("Points")]
@@ -31,12 +31,18 @@ namespace VVVV.Nodes
 
         [Input("Colors")]
         public ISpread<RGBAColor> FColorsInput;
+        
+        [Input("Repetitions", IsSingle = true, DefaultValue = -1)]
+        public ISpread<int> FRepsInput;
 
         [Input("Do Send", IsBang = true, IsSingle = true)]
         public ISpread<bool> FDoSendInput;
 
         [Input("Shutter", IsSingle = true)]
         public ISpread<bool> FShutterInput;
+        
+        [Input("Points per Second", IsSingle = true, DefaultValue = 15000)]
+        public ISpread<int> FPPSInput;
 
         [Input("Init", IsBang = true, IsSingle = true)]
         public ISpread<bool> FInitInput;
@@ -45,19 +51,29 @@ namespace VVVV.Nodes
         public ILogger FLogger;
         #endregion fields & pins
 
-        DAC FLaserDAC;
+        object FLaserDAC;
         IDisposable FShutter;
 
 
-        private IEnumerable<LaserPoint> GetFrame()
+        private IEnumerable<EtherDreamPoint> GetFrame()
         {
             var i = 0;
             foreach(var p in FPointsInput)
             {
-                var col = FColorsInput[i].Color;
-                var pos = new Point((int)(p.x * 32700), (int)(p.y * 32700));
-                yield return new LaserPoint(pos, col, col.A > 0);
+                yield return CreateEtherDreamPoint(p, FColorsInput[i++]);
             }
+        }
+        
+        EtherDreamPoint CreateEtherDreamPoint(Vector2D pos, RGBAColor col)
+        {
+            return new EtherDreamPoint {
+                X = (short)(pos.x * 32767),
+                Y = (short)(pos.y * 32767),
+                R = (ushort)(col.R * 65535),
+                G = (ushort)(col.G * 65535),
+                B = (ushort)(col.B * 65535),
+                I = (ushort)(col.A * 65535)
+            };
         }
 
         //called when data for any output pin is requested
@@ -67,7 +83,7 @@ namespace VVVV.Nodes
             //init
             if (FInitInput[0])
             {
-                Init(ControllerType.EtherDream);
+                Init();
             }
 
 
@@ -77,26 +93,11 @@ namespace VVVV.Nodes
                 {
                     if (FShutterInput[0])
                     {
-                        //open shutter
-                        if (FShutter == null)
-                        {
-                            FShutter = FLaserDAC.OpenShutter();
-                        }
-
-                        if (FLaserDAC.IsShutterOpen && FDoSendInput[0])
-                        {
-                            FLaserDAC.WriteFrame(GetFrame());
-                        }
-
+                        EtherDreamNative.WriteFrame(0, GetFrame(), FPPSInput[0], FRepsInput[0]);
                     }
                     else
                     {
-                        //close shutter
-                        if (FShutter != null)
-                        {
-                            FShutter.Dispose();
-                            FShutter = null;
-                        }
+                        EtherDreamNative.Stop(0);
                     }
                 }
                 catch (Exception e)
@@ -108,16 +109,24 @@ namespace VVVV.Nodes
             //FLogger.Log(LogType.Debug, "hi tty!");
         }
 
-        void Init(ControllerType type)
+        void Init()
         {
-            Log("Init Device: " + type.ToString());
+            Log("Init Device");
 
             try
             {
-                if (FLaserDAC != null)
-                    FLaserDAC.Dispose();
-
-                FLaserDAC = DAC.Initialize(ControllerTypes.All, type);
+                var cards = EtherDreamNative.GetCardNum();
+                if(cards > 0)
+                {
+                    var result = EtherDreamNative.OpenDevice(0);
+                    
+                    if(result == 0)
+                    {
+                        Log("Opened Device: " + EtherDreamNative.GetDeviceName(0));
+                        FLaserDAC = new object();
+                    }
+                }
+                
             }
             catch (Exception e)
             {
@@ -132,8 +141,7 @@ namespace VVVV.Nodes
 
         public void Dispose()
         {
-            if (FLaserDAC != null)
-                FLaserDAC.Dispose();
+            EtherDreamNative.Close();
         }
     }
 }
