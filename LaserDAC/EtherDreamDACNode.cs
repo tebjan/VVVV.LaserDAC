@@ -52,8 +52,6 @@ namespace VVVV.Nodes
         #endregion fields & pins
 
         object FLaserDAC;
-        IDisposable FShutter;
-
 
         private IEnumerable<EtherDreamPoint> GetFrame()
         {
@@ -69,10 +67,10 @@ namespace VVVV.Nodes
             return new EtherDreamPoint {
                 X = (short)(pos.x * 32767),
                 Y = (short)(pos.y * 32767),
-                R = (ushort)(col.R * 65535),
-                G = (ushort)(col.G * 65535),
-                B = (ushort)(col.B * 65535),
-                I = (ushort)(col.A * 65535)
+                R = (ushort)(col.R * 32767),
+                G = (ushort)(col.G * 32767),
+                B = (ushort)(col.B * 32767),
+                I = (ushort)(col.A * 32767)
             };
         }
 
