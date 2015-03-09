@@ -116,6 +116,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="EtherDream.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="LaserDAC %28Devices%29 help.v4p">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
