@@ -50,40 +50,40 @@ namespace EtherDream
         
         //J4CDAC_API void __stdcall EtherDreamGetDeviceName(const int *CardNum, char *buf, int max);
         [DllImport("EtherDream.dll", EntryPoint = "EtherDreamGetDeviceName", CharSet = CharSet.Ansi)]
-        static extern int GetDeviceName(int cardNum, [Out] StringBuilder name, int nameSize);
+        static extern int GetDeviceName(ref int cardNum, StringBuilder name, int nameSize);
         
-        public static string GetDeviceName(int cardNum)
+        public static string GetDeviceName(ref int cardNum)
         {
             var sb = new StringBuilder(128);
-            var status = GetDeviceName(cardNum, sb, 128);           
-            return status == 0 ? sb.ToString() : "";
+            var status = GetDeviceName(ref cardNum, sb, sb.Capacity);           
+            return status >= 0 ? sb.ToString() : "";
         }
         
         //J4CDAC_API bool __stdcall EtherDreamOpenDevice(const int *CardNum);
         [DllImport("EtherDream.dll", EntryPoint = "EtherDreamOpenDevice")]
-        public static extern int OpenDevice(int cardNum);
+        public static extern int OpenDevice(ref int cardNum);
 
         //J4CDAC_API bool __stdcall EtherDreamWriteFrame(const int *CardNum, const struct EAD_Pnt_s* data, int Bytes, uint16_t PPS, uint16_t Reps);
         [DllImport("EtherDream.dll", EntryPoint = "EtherDreamWriteFrame")]
-        static extern int WriteFrame(int cardNum, [In] EtherDreamPoint[] points, int bytes, short pps, short reps);
+        static extern int WriteFrame(ref int cardNum, [In] EtherDreamPoint[] points, int bytes, short pps, short reps);
         
-        public static int WriteFrame(int cardNum, IEnumerable<EtherDreamPoint> points, int pps, int reps)
+        public static int WriteFrame(ref int cardNum, IEnumerable<EtherDreamPoint> points, int pps, int reps)
         {
             var array = points.ToArray();
-            return WriteFrame(cardNum, array, array.Length * SizeOfEtherDreamPoint, (short) pps, (short) reps);
+            return WriteFrame(ref cardNum, array, array.Length * SizeOfEtherDreamPoint, (short) pps, (short) reps);
         }
         
         //J4CDAC_API int __stdcall EtherDreamGetStatus(const int *CardNum);
         [DllImport("EtherDream.dll", EntryPoint = "EtherDreamGetStatus")]
-        public static extern int GetStatus(int cardNum);
+        public static extern int GetStatus(ref int cardNum);
         
         //J4CDAC_API bool __stdcall EtherDreamStop(const int *CardNum);
         [DllImport("EtherDream.dll", EntryPoint = "EtherDreamStop")]
-        public static extern int Stop(int cardNum);
+        public static extern int Stop(ref int cardNum);
         
         //J4CDAC_API bool __stdcall EtherDreamCloseDevice(const int *CardNum);
         [DllImport("EtherDream.dll", EntryPoint = "EtherDreamCloseDevice")]
-        public static extern int CloseDevice(int cardNum);
+        public static extern int CloseDevice(ref int cardNum);
         
         //J4CDAC_API bool __stdcall EtherDreamClose(void);
         [DllImport("EtherDream.dll", EntryPoint = "EtherDreamClose")]

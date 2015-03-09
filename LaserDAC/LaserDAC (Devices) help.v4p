@@ -1,29 +1,15 @@
 <!DOCTYPE PATCH  SYSTEM "http://vvvv.org/versions/vvvv45beta33.7.dtd" >
-   <PATCH nodename="C:\vvvv\PROJECTS\2015\07_EtherDreamNode\DAC csharp\LaserDAC\bin\LaserDACtest.v4p" systemname="LaserDAC (Devices) help" filename="C:\vvvv\PROJECTS\2015\07_EtherDreamNode\DAC csharp\LaserDAC\LaserDAC (Devices) help.v4p">
-   <BOUNDS type="Window" left="2895" top="5640" width="10350" height="8715">
+   <PATCH nodename="C:\vvvv\Dev\EtherDreamDac\VVVV.LaserDAC\LaserDAC\LaserDAC (Devices) help.v4p" systemname="LaserDAC (Devices) help" filename="C:\vvvv\PROJECTS\2015\07_EtherDreamNode\DAC csharp\LaserDAC\LaserDAC (Devices) help.v4p">
+   <BOUNDS type="Window" left="2844" top="2856" width="10344" height="8712">
    </BOUNDS>
    <PACK Name="addonpack" Version="33.7.0">
    </PACK>
-   <NODE systemname="LaserDAC (Devices)" filename="Debug\VVVV.LaserDAC.dll" nodename="LaserDAC (Devices)" componentmode="Hidden" id="0">
-   <BOUNDS type="Node" left="2175" top="3075" width="3885" height="270">
-   </BOUNDS>
-   <PIN pinname="Shutter" visible="1">
-   </PIN>
-   <PIN pinname="Init" visible="1">
-   </PIN>
-   <PIN pinname="Do Send" visible="1">
-   </PIN>
-   <PIN pinname="Colors" visible="1">
-   </PIN>
-   <PIN pinname="PointsXY" visible="1">
-   </PIN>
-   </NODE>
    <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="1" systemname="IOBox (Value Advanced)">
-   <BOUNDS type="Box" left="5040" top="2145" width="480" height="480">
+   <BOUNDS type="Box" left="4728" top="2217" width="480" height="480">
    </BOUNDS>
-   <BOUNDS type="Node" left="5040" top="2145" width="0" height="0">
+   <BOUNDS type="Node" left="4728" top="2217" width="0" height="0">
    </BOUNDS>
-   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="0">
+   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="1">
    </PIN>
    <PIN pinname="Units" slicecount="1" values="||">
    </PIN>
@@ -35,11 +21,9 @@
    </PIN>
    <PIN pinname="Descriptive Name" slicecount="1" values="Shutter">
    </PIN>
-   <PIN pinname="X Input Value" slicecount="1" values="0">
+   <PIN pinname="X Input Value" slicecount="1" values="1">
    </PIN>
    </NODE>
-   <LINK srcnodeid="1" srcpinname="Y Output Value" dstnodeid="0" dstpinname="Shutter">
-   </LINK>
    <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="2" systemname="IOBox (Value Advanced)">
    <BOUNDS type="Box" left="6000" top="2490" width="480" height="480">
    </BOUNDS>
@@ -60,8 +44,6 @@
    <PIN pinname="X Input Value" slicecount="1" values="0">
    </PIN>
    </NODE>
-   <LINK srcnodeid="2" srcpinname="Y Output Value" dstnodeid="0" dstpinname="Init">
-   </LINK>
    <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="3" systemname="IOBox (Value Advanced)">
    <BOUNDS type="Box" left="4065" top="1185" width="480" height="480">
    </BOUNDS>
@@ -82,24 +64,20 @@
    <PIN pinname="X Input Value" slicecount="1" values="0">
    </PIN>
    </NODE>
-   <LINK srcnodeid="3" srcpinname="Y Output Value" dstnodeid="0" dstpinname="Do Send">
-   </LINK>
    <NODE nodename="IOBox (Color)" componentmode="InABox" id="4" systemname="IOBox (Color)">
-   <BOUNDS type="Box" left="3150" top="1860" width="840" height="465">
+   <BOUNDS type="Box" left="2802" top="1836" width="840" height="465">
    </BOUNDS>
-   <BOUNDS type="Node" left="3150" top="1860" width="0" height="0">
+   <BOUNDS type="Node" left="2802" top="1836" width="0" height="0">
    </BOUNDS>
-   <PIN pinname="Color Input" slicecount="1" visible="1" values="|0.98998,0.98998,0.98998,0.27938|">
+   <PIN pinname="Color Input" slicecount="1" visible="1" values="|1.00000,1.00000,1.00000,0.27938|">
    </PIN>
    </NODE>
-   <LINK srcnodeid="4" srcpinname="Color Output" dstnodeid="0" dstpinname="Colors">
-   </LINK>
    <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="5" systemname="IOBox (Value Advanced)">
    <BOUNDS type="Box" left="885" top="495" width="1545" height="1095">
    </BOUNDS>
    <BOUNDS type="Node" left="885" top="495" width="0" height="0">
    </BOUNDS>
-   <PIN pinname="Y Input Value" slicecount="8" visible="1" values="-0.5,0.5,0.5,0.5,0.5,-0.5,-0.5,-0.5">
+   <PIN pinname="Y Input Value" slicecount="8" visible="1" values="-0.5,0.51,0.5,0.5,0.5,-0.5,-0.5,-0.5">
    </PIN>
    <PIN pinname="Units" slicecount="1" values="||">
    </PIN>
@@ -113,9 +91,9 @@
    </PIN>
    <PIN pinname="Columns" slicecount="1" values="2">
    </PIN>
+   <PIN pinname="Y Output Value" visible="1">
+   </PIN>
    </NODE>
-   <LINK srcnodeid="5" srcpinname="Y Output Value" dstnodeid="0" dstpinname="PointsXY">
-   </LINK>
    <NODE systemname="Renderer (TTY)" nodename="Renderer (TTY)" componentmode="InABox" id="6">
    <BOUNDS type="Node" left="480" top="3975" width="100" height="100">
    </BOUNDS>
@@ -124,4 +102,92 @@
    <BOUNDS type="Window" left="9840" top="14085" width="6240" height="5010">
    </BOUNDS>
    </NODE>
+   <NODE systemname="EtherDream (Devices)" filename="bin\Debug\VVVV.LaserDAC.dll" nodename="EtherDream (Devices)" componentmode="Hidden" id="0">
+   <BOUNDS type="Node" left="2175" top="3075" width="3885" height="270">
+   </BOUNDS>
+   <PIN pinname="Shutter" visible="1">
+   </PIN>
+   <PIN pinname="Init" visible="1">
+   </PIN>
+   <PIN pinname="Do Send" visible="1">
+   </PIN>
+   <PIN pinname="Colors" visible="1">
+   </PIN>
+   <PIN pinname="PointsXY" visible="1" slicecount="8" values="-0.5,0.51,0.5,0.5,0.5,-0.5,-0.5,-0.5">
+   </PIN>
+   <PIN pinname="Points per Second" visible="1">
+   </PIN>
+   <PIN pinname="Repetitions" visible="1">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="1" srcpinname="Y Output Value" dstnodeid="0" dstpinname="Shutter">
+   </LINK>
+   <LINK srcnodeid="2" srcpinname="Y Output Value" dstnodeid="0" dstpinname="Init">
+   </LINK>
+   <LINK srcnodeid="3" srcpinname="Y Output Value" dstnodeid="0" dstpinname="Do Send">
+   </LINK>
+   <LINK srcnodeid="4" srcpinname="Color Output" dstnodeid="0" dstpinname="Colors">
+   </LINK>
+   <NODE systemname="Resample (Spreads)" nodename="Resample (Spreads)" componentmode="Hidden" id="7">
+   <BOUNDS type="Node" left="912" top="1812" width="100" height="100">
+   </BOUNDS>
+   <PIN pinname="Input" visible="1">
+   </PIN>
+   <PIN pinname="Output" visible="1">
+   </PIN>
+   <PIN pinname="Spread Count" slicecount="1" values="600">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="5" srcpinname="Y Output Value" dstnodeid="7" dstpinname="Input">
+   </LINK>
+   <LINK srcnodeid="7" srcpinname="Output" dstnodeid="0" dstpinname="PointsXY">
+   </LINK>
+   <NODE systemname="RGB (Color Join)" nodename="RGB (Color Join)" componentmode="Hidden" id="8">
+   <BOUNDS type="Node" left="2808" top="1128" width="100" height="100">
+   </BOUNDS>
+   <PIN pinname="Output" visible="1">
+   </PIN>
+   <PIN pinname="Green" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="Blue" slicecount="1" values="0">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="8" srcpinname="Output" dstnodeid="4" dstpinname="Color Input">
+   </LINK>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="9" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="5964" top="1212" width="792" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="5964" top="1212" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="15000">
+   </PIN>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Integer">
+   </PIN>
+   <PIN pinname="Descriptive Name" slicecount="1" values="|Points per Second|">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="9" srcpinname="Y Output Value" dstnodeid="0" dstpinname="Points per Second">
+   </LINK>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="10" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="3240" top="2556" width="792" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="3240" top="2556" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Y Input Value" slicecount="1" visible="1" values="-1">
+   </PIN>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Integer">
+   </PIN>
+   <PIN pinname="Descriptive Name" slicecount="1" values="Repetitions">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="10" srcpinname="Y Output Value" dstnodeid="0" dstpinname="Repetitions">
+   </LINK>
    </PATCH>

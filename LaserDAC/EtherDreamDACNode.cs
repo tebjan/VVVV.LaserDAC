@@ -52,6 +52,7 @@ namespace VVVV.Nodes
         #endregion fields & pins
 
         object FLaserDAC;
+        int FDeviceNumber = 0;
 
         private IEnumerable<EtherDreamPoint> GetFrame()
         {
@@ -91,11 +92,15 @@ namespace VVVV.Nodes
                 {
                     if (FShutterInput[0])
                     {
-                        EtherDreamNative.WriteFrame(0, GetFrame(), FPPSInput[0], FRepsInput[0]);
+                    	if(FDoSendInput[0])
+                    	{
+                        	var status = EtherDreamNative.WriteFrame(ref FDeviceNumber, GetFrame(), FPPSInput[0], FRepsInput[0]);
+                        	
+                    	}
                     }
                     else
                     {
-                        EtherDreamNative.Stop(0);
+                        EtherDreamNative.Stop(ref FDeviceNumber);
                     }
                 }
                 catch (Exception e)
@@ -116,11 +121,11 @@ namespace VVVV.Nodes
                 var cards = EtherDreamNative.GetCardNum();
                 if(cards > 0)
                 {
-                    var result = EtherDreamNative.OpenDevice(0);
+                    var result = EtherDreamNative.OpenDevice(ref FDeviceNumber);
                     
-                    if(result == 0)
+                    if(result >= 0)
                     {
-                        Log("Opened Device: " + EtherDreamNative.GetDeviceName(0));
+                        Log("Opened Device: " + EtherDreamNative.GetDeviceName(ref FDeviceNumber));
                         FLaserDAC = new object();
                     }
                 }
