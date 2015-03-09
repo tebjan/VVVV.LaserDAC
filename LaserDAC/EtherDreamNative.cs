@@ -45,7 +45,7 @@ namespace EtherDream
         static readonly int SizeOfEtherDreamPoint = Marshal.SizeOf(typeof(EtherDreamPoint));
         
         //J4CDAC_API int __stdcall EtherDreamGetCardNum(void);
-        [DllImport("EtherDream.dll", EntryPoint = "EtherDreamGetCardNum")]
+        [DllImport("EtherDream.dll", EntryPoint = "EtherDreamGetCardNum", CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetCardNum();
         
         //J4CDAC_API void __stdcall EtherDreamGetDeviceName(const int *CardNum, char *buf, int max);
