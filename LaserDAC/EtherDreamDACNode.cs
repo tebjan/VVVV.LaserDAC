@@ -34,6 +34,9 @@ namespace VVVV.Nodes
         [Input("Colors")]
         public ISpread<RGBAColor> FColorsInput;
         
+        [Input("Point Repeat", DefaultValue = 1)]
+        public ISpread<int> FPointRepeatInput;
+        
         [Input("Start Blanks", DefaultValue = 1)]
         public ISpread<int> FStartBlanksInput;
         
@@ -80,7 +83,14 @@ namespace VVVV.Nodes
                 
                 foreach(var p in shape)
                 {
-                    yield return CreateEtherDreamPoint(p, FColorsInput[colIndex++]);
+                    var col = FColorsInput[colIndex++];
+                    
+                    var pts = Enumerable.Repeat(CreateEtherDreamPoint(p, col), FPointRepeatInput[shapeIndex]);
+                    
+                    foreach (var etherPoint in pts)
+                    {
+                        yield return etherPoint;
+                    }
                 }
                 
                 blanks = Enumerable.Repeat(CreateEtherDreamPoint(end, VColor.Black), FEndBlanksInput[shapeIndex++]);
