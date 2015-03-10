@@ -37,6 +37,9 @@ namespace VVVV.Nodes
         [Input("Point Repeat", DefaultValue = 1)]
         public ISpread<int> FPointRepeatInput;
         
+        [Input("Point Interpolation Count")]
+        public ISpread<int> FPointInterpolationCountInput;
+        
         [Input("Start Blanks", DefaultValue = 1)]
         public ISpread<int> FStartBlanksInput;
         
@@ -69,37 +72,45 @@ namespace VVVV.Nodes
         {
             var colIndex = 0;
             var shapeIndex = 0;
+            var result = Enumerable.Empty<EtherDreamPoint>();          
+            
             foreach(var shape in FPointsInput)
             {
                 var start = shape[0];
                 var end = shape[shape.SliceCount - 1];
                 
-                var blanks = Enumerable.Repeat(CreateEtherDreamPoint(start, VColor.Black), FStartBlanksInput[shapeIndex]);
-                
-                foreach (var etherPoint in blanks) 
-                {
-                    yield return etherPoint;
-                }
-                
+                //start blanks
+                result = result.Concat(Enumerable.Repeat(CreateEtherDreamPoint(start, VColor.Black), FStartBlanksInput[shapeIndex]));
+               
+                var lastPoint = Vector2D.Zero;
+                var doInterpolate = false;
                 foreach(var p in shape)
                 {
                     var col = FColorsInput[colIndex++];
-                    
-                    var pts = Enumerable.Repeat(CreateEtherDreamPoint(p, col), FPointRepeatInput[shapeIndex]);
-                    
-                    foreach (var etherPoint in pts)
+
+                    //interpolate from last point
+                    if(doInterpolate)
                     {
-                        yield return etherPoint;
+                        var count = FPointInterpolationCountInput[shapeIndex];
+                        var factor = 1.0/(count+1);
+                        
+                        //points in between
+                        result = result.Concat(Enumerable.Range(1, count).Select(index => CreateEtherDreamPoint(VMath.Lerp(lastPoint, p, index*factor), col)));
                     }
+                    
+                    //actual point
+                    result = result.Concat(Enumerable.Repeat(CreateEtherDreamPoint(p, col), FPointRepeatInput[shapeIndex]));
+                    
+                    lastPoint = p;
+                    doInterpolate = true;
                 }
                 
-                blanks = Enumerable.Repeat(CreateEtherDreamPoint(end, VColor.Black), FEndBlanksInput[shapeIndex++]);
+                //end blanks
+                result = result.Concat(Enumerable.Repeat(CreateEtherDreamPoint(end, VColor.Black), FEndBlanksInput[shapeIndex++]));
                 
-                foreach (var etherPoint in blanks) 
-                {
-                    yield return etherPoint;
-                }
             }
+            
+            return result;
         }
         
         EtherDreamPoint CreateEtherDreamPoint(Vector2D pos, RGBAColor col)
@@ -133,13 +144,12 @@ namespace VVVV.Nodes
                     {
                     	if(FDoSendInput[0])
                     	{
-                        	var status = EtherDreamNative.WriteFrame(ref FDeviceNumber, GetFrame(), FPPSInput[0], FRepsInput[0]);
-                        	
+                        	var status = EtherDreamNative.WriteFrame(ref FDeviceNumber, GetFrame(), FPPSInput[0], FRepsInput[0]);                        	
                     	}
                     }
                     else
                     {
-                        EtherDreamNative.Stop(ref FDeviceNumber);
+                        EtherDreamNative.WriteFrame(ref FDeviceNumber, Enumerable.Repeat(CreateEtherDreamPoint(Vector2D.Zero, VColor.Black), 1), FPPSInput[0], FRepsInput[0]);
                     }
                 }
                 catch (Exception e)
@@ -157,6 +167,11 @@ namespace VVVV.Nodes
 
             try
             {
+                if(FLaserDAC != null)
+                {
+                    Dispose();
+                }
+                
                 var cards = EtherDreamNative.GetCardNum();
                 if(cards > 0)
                 {
@@ -184,6 +199,7 @@ namespace VVVV.Nodes
         public void Dispose()
         {
             EtherDreamNative.Close();
+            FLaserDAC = null;
         }
     }
 }
