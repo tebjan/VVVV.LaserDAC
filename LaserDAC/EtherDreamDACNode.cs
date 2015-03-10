@@ -2,8 +2,10 @@
 using System;
 using System.ComponentModel.Composition;
 
+using System.Linq;
 using VVVV.PluginInterfaces.V1;
 using VVVV.PluginInterfaces.V2;
+using VVVV.PluginInterfaces.V2.NonGeneric;
 using VVVV.Utils.VColor;
 using VVVV.Utils.VMath;
 
@@ -27,10 +29,16 @@ namespace VVVV.Nodes
     {
         #region fields & pins
         [Input("Points")]
-        public ISpread<Vector2D> FPointsInput;
+        public ISpread<ISpread<Vector2D>> FPointsInput;
 
         [Input("Colors")]
         public ISpread<RGBAColor> FColorsInput;
+        
+        [Input("Start Blanks", DefaultValue = 1)]
+        public ISpread<int> FStartBlanksInput;
+        
+        [Input("End Blanks", DefaultValue = 1)]
+        public ISpread<int> FEndBlanksInput;
         
         [Input("Repetitions", IsSingle = true, DefaultValue = -1)]
         public ISpread<int> FRepsInput;
@@ -56,10 +64,31 @@ namespace VVVV.Nodes
 
         private IEnumerable<EtherDreamPoint> GetFrame()
         {
-            var i = 0;
-            foreach(var p in FPointsInput)
+            var colIndex = 0;
+            var shapeIndex = 0;
+            foreach(var shape in FPointsInput)
             {
-                yield return CreateEtherDreamPoint(p, FColorsInput[i++]);
+                var start = shape[0];
+                var end = shape[shape.SliceCount - 1];
+                
+                var blanks = Enumerable.Repeat(CreateEtherDreamPoint(start, VColor.Black), FStartBlanksInput[shapeIndex]);
+                
+                foreach (var etherPoint in blanks) 
+                {
+                    yield return etherPoint;
+                }
+                
+                foreach(var p in shape)
+                {
+                    yield return CreateEtherDreamPoint(p, FColorsInput[colIndex++]);
+                }
+                
+                blanks = Enumerable.Repeat(CreateEtherDreamPoint(end, VColor.Black), FEndBlanksInput[shapeIndex++]);
+                
+                foreach (var etherPoint in blanks) 
+                {
+                    yield return etherPoint;
+                }
             }
         }
         
