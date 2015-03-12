@@ -37,6 +37,12 @@ namespace EtherDream
         public ushort AR;
     }
     
+    public enum EtherDreamStatus
+    {
+        Ready = 1,
+        Busy = 2
+    }
+    
     /// <summary>
     /// Wrapper around the EtherDream.dll
     /// </summary>
@@ -75,7 +81,12 @@ namespace EtherDream
         
         //J4CDAC_API int __stdcall EtherDreamGetStatus(const int *CardNum);
         [DllImport("EtherDream.dll", EntryPoint = "EtherDreamGetStatus")]
-        public static extern int GetStatus(ref int cardNum);
+        static extern int NativeGetStatus(ref int cardNum);
+        
+        public static EtherDreamStatus GetStatus(ref int cardNum)
+        {
+            return (EtherDreamStatus)NativeGetStatus(ref cardNum);
+        }
         
         //J4CDAC_API bool __stdcall EtherDreamStop(const int *CardNum);
         [DllImport("EtherDream.dll", EntryPoint = "EtherDreamStop")]

@@ -37,8 +37,11 @@ namespace VVVV.Nodes
         [Input("Point Repeat", DefaultValue = 1)]
         public ISpread<int> FPointRepeatInput;
         
-        [Input("Point Interpolation Count")]
-        public ISpread<int> FPointInterpolationCountInput;
+        [Input("Interpolation Distance", DefaultValue = 1)]
+        public ISpread<double> FPointInterpolationDistanceInput;
+        
+        [Input("Closed Shape")]
+        public ISpread<bool> FClosedShapeInput;
         
         [Input("Start Blanks", DefaultValue = 1)]
         public ISpread<int> FStartBlanksInput;
@@ -60,6 +63,12 @@ namespace VVVV.Nodes
 
         [Input("Init", IsBang = true, IsSingle = true)]
         public ISpread<bool> FInitInput;
+        
+        [Input("Output Debug Points", IsSingle = true)]
+        public ISpread<bool> FShowDebugInput;
+        
+        [Output("Debug Points")]
+        public ISpread<Vector2D> FPointsDebugOutput;
 
         [Import()]
         public ILogger FLogger;
@@ -76,8 +85,21 @@ namespace VVVV.Nodes
             
             foreach(var shape in FPointsInput)
             {
-                var start = shape[0];
-                var end = shape[shape.SliceCount - 1];
+                var isClosed = FClosedShapeInput[shapeIndex];
+                
+                Vector2D start;
+                Vector2D end;
+                
+                if(isClosed)
+                {
+                    start = shape[shape.SliceCount - 1];
+                    end = start;
+                }
+                else
+                {
+                    start = shape[0];
+                    end = shape[shape.SliceCount - 1];
+                }
                 
                 //start blanks
                 result = result.Concat(Enumerable.Repeat(CreateEtherDreamPoint(start, VColor.Black), FStartBlanksInput[shapeIndex]));
@@ -91,25 +113,34 @@ namespace VVVV.Nodes
                     //interpolate from last point
                     if(doInterpolate)
                     {
-                        var count = FPointInterpolationCountInput[shapeIndex];
+                        var count = (int)Math.Floor(VMath.Dist(lastPoint, p) / Math.Max(FPointInterpolationDistanceInput[shapeIndex], 0.0001));
                         var factor = 1.0/(count+1);
                         
-                        //points in between
-                        result = result.Concat(Enumerable.Range(1, count).Select(index => CreateEtherDreamPoint(VMath.Lerp(lastPoint, p, index*factor), col)));
+                        //points in between, need to be caculated directly since linq lazyness would access only the last value in lastPoint
+                        result = result.Concat(Enumerable.Range(1, count).Select(index => CreateEtherDreamPoint(VMath.Lerp(lastPoint, p, index*factor), col)).ToArray());
                     }
+                    else if (isClosed) // first iteration
+                    {
+                        var count = (int)Math.Floor(VMath.Dist(end, p) / Math.Max(FPointInterpolationDistanceInput[shapeIndex], 0.0001));
+                        var factor = 1.0/(count+1);
+                        
+                        //points in between, need to be caculated directly since linq lazyness would access only the last value in lastPoint
+                        result = result.Concat(Enumerable.Range(1, count).Select(index => CreateEtherDreamPoint(VMath.Lerp(end, p, index*factor), col)).ToArray());
+                    }                    
                     
-                    //actual point
+
+                    //actual point 
                     result = result.Concat(Enumerable.Repeat(CreateEtherDreamPoint(p, col), FPointRepeatInput[shapeIndex]));
                     
                     lastPoint = p;
                     doInterpolate = true;
                 }
-                
+                              
                 //end blanks
                 result = result.Concat(Enumerable.Repeat(CreateEtherDreamPoint(end, VColor.Black), FEndBlanksInput[shapeIndex++]));
                 
             }
-            
+
             return result;
         }
         
@@ -142,14 +173,15 @@ namespace VVVV.Nodes
                 {
                     if (FShutterInput[0])
                     {
-                    	if(FDoSendInput[0])
+                        if(FDoSendInput[0] && EtherDreamNative.GetStatus(ref FDeviceNumber) == EtherDreamStatus.Ready)
                     	{
                         	var status = EtherDreamNative.WriteFrame(ref FDeviceNumber, GetFrame(), FPPSInput[0], FRepsInput[0]);                        	
                     	}
                     }
                     else
                     {
-                        EtherDreamNative.WriteFrame(ref FDeviceNumber, Enumerable.Repeat(CreateEtherDreamPoint(Vector2D.Zero, VColor.Black), 1), FPPSInput[0], FRepsInput[0]);
+                        if(EtherDreamNative.GetStatus(ref FDeviceNumber) == EtherDreamStatus.Ready)
+                            EtherDreamNative.WriteFrame(ref FDeviceNumber, Enumerable.Repeat(CreateEtherDreamPoint(Vector2D.Zero, VColor.Black), 1), FPPSInput[0], FRepsInput[0]);
                     }
                 }
                 catch (Exception e)
@@ -157,6 +189,12 @@ namespace VVVV.Nodes
                     Log(e);
                 }
             }
+            
+            
+            if(FShowDebugInput[0])
+                FPointsDebugOutput.AssignFrom(GetFrame().Select(edp => new Vector2D(edp.X/32767.0, edp.Y/32767.0)));
+            else
+                FPointsDebugOutput.SliceCount = 0;
 
             //FLogger.Log(LogType.Debug, "hi tty!");
         }
