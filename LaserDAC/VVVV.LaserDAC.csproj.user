@@ -8,4 +8,12 @@
     <StartAction>Program</StartAction>
     <StartProgram>C:\vvvv\vvvv_45beta33.7_x86\vvvv.exe</StartProgram>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <StartProgram>C:\vvvv\vvvv_45beta33.7_x86\vvvv.exe</StartProgram>
+    <StartAction>Program</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <StartProgram>C:\vvvv\vvvv_45beta33.7_x86\vvvv.exe</StartProgram>
+    <StartAction>Program</StartAction>
+  </PropertyGroup>
 </Project>

@@ -73,10 +73,9 @@ namespace EtherDream
         [DllImport("EtherDream.dll", EntryPoint = "EtherDreamWriteFrame")]
         static extern int WriteFrame(ref int cardNum, [In] EtherDreamPoint[] points, int bytes, short pps, short reps);
         
-        public static int WriteFrame(ref int cardNum, IEnumerable<EtherDreamPoint> points, int pps, int reps)
+        public static int WriteFrame(ref int cardNum, EtherDreamPoint[] points, int pps, int reps)
         {
-            var array = points.ToArray();
-            return WriteFrame(ref cardNum, array, array.Length * SizeOfEtherDreamPoint, (short) pps, (short) reps);
+            return WriteFrame(ref cardNum, points, points.Length * SizeOfEtherDreamPoint, (short) pps, (short) reps);
         }
         
         //J4CDAC_API int __stdcall EtherDreamGetStatus(const int *CardNum);

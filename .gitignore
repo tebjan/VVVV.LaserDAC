@@ -8,3 +8,5 @@ bin/
 LaserDAC/obj/
 packages/
 EtherDreamNativeTester/obj/
+.suo
+/.vs/

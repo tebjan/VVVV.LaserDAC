@@ -23,9 +23,10 @@ namespace VVVV.Nodes
                 Category = "Devices",
                 Help = "EtherDream laser controller",
                 Tags = "laser",
+                Author = "tonfilm",
                 AutoEvaluate = true)]
     #endregion PluginInfo
-    public class EtherDreamDACNode : IPluginEvaluate, IDisposable
+    public class EtherDreamDACNode : IPluginEvaluate, IDisposable, IPartImportsSatisfiedNotification
     {
         #region fields & pins
         [Input("Points")]
@@ -66,7 +67,16 @@ namespace VVVV.Nodes
         
         [Input("Output Debug Points", IsSingle = true)]
         public ISpread<bool> FShowDebugInput;
-        
+
+        [Input("Device", EnumName = "EtherDreamMACName", IsSingle = true)]
+        public ISpread<EnumEntry> FDeviceIn;
+
+        [Input("Prevent Close HACK", IsSingle = true)]
+        public ISpread<bool> FPreventCloseHACKInput;
+
+        [Input("DeviceNumber", IsSingle = true)]
+        public ISpread<int> FDeviceNumberInput;
+
         [Output("Debug Points")]
         public ISpread<Vector2D> FPointsDebugOutput;
 
@@ -166,6 +176,15 @@ namespace VVVV.Nodes
                 Init();
             }
 
+            EtherDreamPoint[] frame = null;
+
+            if (FShowDebugInput[0])
+            {
+                frame = GetFrame().ToArray();
+                FPointsDebugOutput.AssignFrom(frame.Select(edp => new Vector2D(edp.X / 32767.0, edp.Y / 32767.0)));
+            }
+            else
+                FPointsDebugOutput.SliceCount = 0;
 
             if (FLaserDAC != null)
             {
@@ -175,13 +194,16 @@ namespace VVVV.Nodes
                     {
                         if(FDoSendInput[0] && EtherDreamNative.GetStatus(ref FDeviceNumber) == EtherDreamStatus.Ready)
                     	{
-                        	var status = EtherDreamNative.WriteFrame(ref FDeviceNumber, GetFrame(), FPPSInput[0], FRepsInput[0]);                        	
+                            if (frame == null)
+                                frame = GetFrame().ToArray();
+
+                        	var status = EtherDreamNative.WriteFrame(ref FDeviceNumber, frame, FPPSInput[0], FRepsInput[0]);                        	
                     	}
                     }
                     else
                     {
                         if(EtherDreamNative.GetStatus(ref FDeviceNumber) == EtherDreamStatus.Ready)
-                            EtherDreamNative.WriteFrame(ref FDeviceNumber, Enumerable.Repeat(CreateEtherDreamPoint(Vector2D.Zero, VColor.Black), 1), FPPSInput[0], FRepsInput[0]);
+                            EtherDreamNative.WriteFrame(ref FDeviceNumber, Enumerable.Repeat(CreateEtherDreamPoint(Vector2D.Zero, VColor.Black), 1).ToArray(), FPPSInput[0], FRepsInput[0]);
                     }
                 }
                 catch (Exception e)
@@ -191,34 +213,34 @@ namespace VVVV.Nodes
             }
             
             
-            if(FShowDebugInput[0])
-                FPointsDebugOutput.AssignFrom(GetFrame().Select(edp => new Vector2D(edp.X/32767.0, edp.Y/32767.0)));
-            else
-                FPointsDebugOutput.SliceCount = 0;
+
 
             //FLogger.Log(LogType.Debug, "hi tty!");
         }
 
         void Init()
         {
-            Log("Init Device");
+            Log("EtheDream Init");
 
             try
             {
-                if(FLaserDAC != null)
-                {
-                    Dispose();
-                }
+                //if(FLaserDAC != null)
+                //{
+                //    Dispose();
+                //}
+
+                //EnumerateDevices();
                 
-                var cards = EtherDreamNative.GetCardNum();
-                if(cards > 0)
+                //if(!string.IsNullOrWhiteSpace(FDeviceIn[0]))
                 {
-                    var result = EtherDreamNative.OpenDevice(ref FDeviceNumber);
+                    var deviceNumber = FDeviceNumberInput[0];
+                    var result = EtherDreamNative.OpenDevice(ref deviceNumber);
                     
-                    if(result >= 0)
+                    if (result >= 0)
                     {
-                        Log("Opened Device: " + EtherDreamNative.GetDeviceName(ref FDeviceNumber));
+                        Log("Opened Device: " + EtherDreamNative.GetDeviceName(ref deviceNumber));
                         FLaserDAC = new object();
+                        FDeviceNumber = deviceNumber;
                     }
                 }
                 
@@ -236,8 +258,37 @@ namespace VVVV.Nodes
 
         public void Dispose()
         {
-            EtherDreamNative.Close();
+            try
+            {
+                if (!FPreventCloseHACKInput[0])
+                    EtherDreamNative.CloseDevice(ref FDeviceNumber);
+            }
+            catch (Exception e)
+            {
+                Log(e);
+            }
+
             FLaserDAC = null;
+        }
+
+        static void EnumerateDevices()
+        {
+            var cards = EtherDreamNative.GetCardNum();
+            if (cards > 0)
+            {
+                var names = new string[cards];
+                for (int i = 0; i < cards; i++)
+                {
+                    names[i] = EtherDreamNative.GetDeviceName(ref i);
+                }
+
+                EnumManager.UpdateEnum("EtherDreamMACName", names[0], names);
+            }
+        }
+
+        public void OnImportsSatisfied()
+        {
+            EnumerateDevices();
         }
     }
 }
